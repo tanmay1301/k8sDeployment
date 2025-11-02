@@ -2,7 +2,7 @@ FROM nginx:latest
 
 WORKDIR /usr/share/nginx/html
 
-RUN rn -rf ./*
+RUN rm -rf ./*
 
 COPY index.html ./
 
