@@ -2,13 +2,13 @@ version: 0.2
 env:
   variables:
     AWS_REGION: ap-south-1
-    ECR_REPO: 408421298729.dkr.ecr.ap-south-1.amazonaws.com
+    ECR_REPO: 808953420819.dkr.ecr.ap-south-1.amazonaws.com
 phases:
   pre_build:
    commands:
      - echo Logging in to ECR...
-     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 808953420819.dkr.ecr.ap-south-1.amazonaws.com
      - docker build -t webapp .
-     - docker tag webapp:latest $ECR_REPO/webapp:latest
-     - docker push $ECR_REPO/webapp:latest
+     - docker tag webapp:latest 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp:latest
+     - docker push 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp:latest
      - echo Image build and push completed
