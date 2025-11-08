@@ -2,27 +2,41 @@ version: 0.2
 env:
   variables:
     AWS_REGION: ap-south-1
-    CLUSTER_NAME: demo-cluster-1
-    ECR_REPO: 808953420819.dkr.ecr.ap-south-1.amazonaws.com
+    ECR_REPO: 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp
+    CLUSTEER_NAME: demo-cluster-1
+
 phases:
+  install:
+    commands: 
+      - curl -o /usr/local/bin/kubectl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - chmod +x /usr/local/bin/kubectl
+      - kubectl version --client
+      - echo "Installing eksctl..."
+      - curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz"
+      - tar xz -C /usr/local/bin -f eksctl_$(uname -s)_amd64.tar.gz
+      - eksctl version
+
+
   pre_build:
-   commands:
-     - echo Logging in to ECR...
-     - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 808953420819.dkr.ecr.ap-south-1.amazonaws.com
-     
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin $ECR_REPO
+      
   build:
     commands:
-     - echo Updating kubernetes Deployment
-     - docker build -t webapp .
-     - docker tag webapp:latest 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp:latest
-     - docker push 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp:latest
-     - echo Image build and push completed
-
+      - echo Building the Docker image...
+      - docker build -t webapp .
+      - docker tag webapp:latest 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp:latest
+      - docker push 808953420819.dkr.ecr.ap-south-1.amazonaws.com/webapp:latest
+      - echo Image build and push completed.
+  
   post_build:
     commands:
-    - cd ./k8s
-    - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-    - kubectl get ns webapp || kubectl create ns webapp
-    - kubectl apply -f k8s-aws.yaml
-    - kubectl get pods -n webapp
-    - kubectl get svc -n EKS completed.
+      - cd ./k8s
+      - echo Updating Kubernetes deployment...
+      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTEER_NAME
+      - kubectl get ns webapp || kubectl create namespace webapp 
+      - kubectl apply -f k8s-aws.yaml
+      - kubectl get pods -n webapp
+      - kubectl get svc -n webapp
+      - echo Deployment to EKS completed.

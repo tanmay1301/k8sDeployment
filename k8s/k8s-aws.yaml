@@ -7,8 +7,8 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp-Deployment
-  Namespace: webapp
+  name: webapp-deployment
+  namespace: webapp
   labels:
     app: webapp
 spec:
@@ -30,11 +30,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp-Service
+  name: webapp-service
+  namespace: webapp
 spec:
+  type: NodePort
   selector:
-    app.kubernetes.io/name: MyApp
+  app: webapp
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 80
+      nodePort: 30080
